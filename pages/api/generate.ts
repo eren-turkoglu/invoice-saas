@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595, 842]); // A4 boyut
 
-  const { width, height } = page.getSize();
+  const { height } = page.getSize();
   const fontSize = 24;
 
   page.drawText('🧾 Fatura', {
