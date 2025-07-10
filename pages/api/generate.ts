@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     color: rgb(0.2, 0.2, 0.8),
   });
 
-  page.drawText(`Müşteri: ${clientName}`, { x: 50, y: height - 120, size: 14 });
+  page.drawText(`Musteri: ${clientName}`, { x: 50, y: height - 120, size: 14 });
   page.drawText(`Hizmet: ${serviceDesc}`, { x: 50, y: height - 140, size: 14 });
   page.drawText(`Fiyat: ${price} €`, { x: 50, y: height - 160, size: 14 });
 
