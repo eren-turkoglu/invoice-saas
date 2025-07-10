@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { height } = page.getSize();
   const fontSize = 24;
 
-  page.drawText('🧾 Fatura', {
+  page.drawText('Fatura', {
     x: 50,
     y: height - 60,
     size: fontSize,
