@@ -13,6 +13,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clientName, serviceDesc, price })
+  });
+
+  if (!response.ok) {
+    alert('PDF oluşturulamadı.');
+    return;
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fatura.pdf';
+  a.click();
+};
+
+
 export default function Home() {
   return (
     <>
