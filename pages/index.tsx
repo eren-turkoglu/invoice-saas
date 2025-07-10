@@ -28,7 +28,7 @@ export default function Home() {
   const [serviceDesc, setServiceDesc] = useState('');
   const [price, setPrice] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
 
   const response = await fetch('/api/generate', {
