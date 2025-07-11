@@ -52,6 +52,7 @@ export default function Home() {
       a.download = 'invoice.pdf';
       a.click();
     } catch (err) {
+  console.error('Failed to generate PDF:', err);
       alert('An error occurred while generating the PDF.');
     }
   };
