@@ -31,6 +31,7 @@ export default function Home() {
       a.click();
       setSuccess(true);
     } catch (err) {
+  console.error('Error generating PDF:', err);
       setError(true);
     } finally {
       setLoading(false);
