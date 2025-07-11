@@ -1,27 +1,34 @@
 import { useState } from 'react';
 
 export default function Home() {
-  const [clientName, setClientName] = useState('');
-  const [serviceDesc, setServiceDesc] = useState('');
-  const [price, setPrice] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(false);
+  const [company, setCompany] = useState({ name: '', address: '', city: '', country: '' });
+  const [client, setClient] = useState({ name: '', email: '', phone: '', address: '' });
+  const [services, setServices] = useState([{ name: '', quantity: 1, unitPrice: 0, taxRate: 20 }]);
+
+  const handleServiceChange = (index: number, field: string, value: string | number) => {
+    const newServices = [...services];
+    newServices[index][field] = field === 'name' ? value : Number(value);
+    setServices(newServices);
+  };
+
+  const addService = () => {
+    setServices([...services, { name: '', quantity: 1, unitPrice: 0, taxRate: 20 }]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setSuccess(false);
-    setError(false);
 
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientName, serviceDesc, price })
+        body: JSON.stringify({ company, client, services })
       });
 
-      if (!response.ok) throw new Error('Network error');
+      if (!response.ok) {
+        alert('Failed to generate PDF.');
+        return;
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -29,72 +36,42 @@ export default function Home() {
       a.href = url;
       a.download = 'invoice.pdf';
       a.click();
-      setSuccess(true);
-    } catch (err) {
-  console.error('Error generating PDF:', err);
-      setError(true);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error generating invoice:', error);
     }
   };
 
   return (
     <main style={{ padding: '2rem', fontFamily: 'Arial' }}>
-      <h1>🧾 Create an Invoice</h1>
-      <form onSubmit={handleSubmit} style={{ maxWidth: 500 }}>
-        <label>Client Name:</label>
-        <input
-          type="text"
-          value={clientName}
-          onChange={(e) => setClientName(e.target.value)}
-          required
-          placeholder="e.g. John Smith"
-          style={inputStyle}
-        />
+      <h1>Invoice Generator</h1>
+      <form onSubmit={handleSubmit} style={{ maxWidth: 700 }}>
 
-        <label>Service Description:</label>
-        <input
-          type="text"
-          value={serviceDesc}
-          onChange={(e) => setServiceDesc(e.target.value)}
-          required
-          placeholder="e.g. Web design"
-          style={inputStyle}
-        />
+        <h3>Company Info</h3>
+        <input placeholder="Company Name" value={company.name} onChange={e => setCompany({ ...company, name: e.target.value })} required />
+        <input placeholder="Address" value={company.address} onChange={e => setCompany({ ...company, address: e.target.value })} required />
+        <input placeholder="City" value={company.city} onChange={e => setCompany({ ...company, city: e.target.value })} required />
+        <input placeholder="Country" value={company.country} onChange={e => setCompany({ ...company, country: e.target.value })} required />
 
-        <label>Price (€):</label>
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-          placeholder="e.g. 500"
-          style={inputStyle}
-        />
+        <h3>Client Info</h3>
+        <input placeholder="Client Name" value={client.name} onChange={e => setClient({ ...client, name: e.target.value })} required />
+        <input placeholder="Email" value={client.email} onChange={e => setClient({ ...client, email: e.target.value })} />
+        <input placeholder="Phone" value={client.phone} onChange={e => setClient({ ...client, phone: e.target.value })} />
+        <input placeholder="Address" value={client.address} onChange={e => setClient({ ...client, address: e.target.value })} />
 
-        <button type="submit" style={buttonStyle}>Create Invoice</button>
+        <h3>Services</h3>
+        {services.map((service, index) => (
+          <div key={index} style={{ marginBottom: '1rem', borderBottom: '1px solid #ccc', paddingBottom: '1rem' }}>
+            <input placeholder="Service Name" value={service.name} onChange={e => handleServiceChange(index, 'name', e.target.value)} required />
+            <input type="number" placeholder="Quantity" value={service.quantity} onChange={e => handleServiceChange(index, 'quantity', e.target.value)} required />
+            <input type="number" placeholder="Unit Price (€)" value={service.unitPrice} onChange={e => handleServiceChange(index, 'unitPrice', e.target.value)} required />
+            <input type="number" placeholder="Tax Rate (%)" value={service.taxRate} onChange={e => handleServiceChange(index, 'taxRate', e.target.value)} required />
+          </div>
+        ))}
+        <button type="button" onClick={addService}>+ Add Another Service</button>
 
-        {loading && <p>Generating PDF...</p>}
-        {success && <p style={{ color: 'green' }}>Invoice created successfully ✅</p>}
-        {error && <p style={{ color: 'red' }}>Something went wrong ❌</p>}
+        <br /><br />
+        <button type="submit">Generate Invoice</button>
       </form>
     </main>
   );
 }
-
-const inputStyle = {
-  display: 'block',
-  width: '100%',
-  padding: '0.5rem',
-  marginBottom: '1rem',
-  fontSize: '1rem'
-};
-
-const buttonStyle = {
-  padding: '0.75rem 1.5rem',
-  backgroundColor: '#0070f3',
-  color: 'white',
-  fontSize: '1rem',
-  border: 'none',
-  cursor: 'pointer'
-};
